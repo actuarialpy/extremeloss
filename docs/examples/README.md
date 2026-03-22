@@ -1,45 +1,33 @@
-# Examples
+# Examples overview
 
-The `examples/` directory contains small, runnable scripts that demonstrate the current MVP API.
+The repository includes small runnable scripts that exercise the current API.
 
-## Included examples
+## Basic empirical workflows
 
-### `empirical_tail_analysis.py`
-Basic empirical tail analysis on simulated lognormal losses.
+- `examples/empirical_tail_analysis.py`
+- `examples/pot_gpd_workflow.py`
+- `examples/importance_sampling_demo.py`
+- `examples/diagnostic_plots.py`
 
-Shows:
-- empirical tail probability
-- empirical VaR and TVaR
-- exceedance curves
-- extreme-loss summary output
+## Extended workflows
 
-### `pot_gpd_workflow.py`
-Peaks-over-threshold workflow using a GPD fit.
+- `examples/conditional_mc_demo.py`
+- `examples/block_maxima_gev_workflow.py`
+- `examples/bootstrap_uncertainty_demo.py`
+- `examples/integration_helpers_demo.py`
 
-Shows:
-- threshold selection grid
-- exceedance extraction
-- POT fitting
-- EVT VaR / TVaR / return level calculations
+## Suggested order
 
-### `importance_sampling_demo.py`
-Simple importance-sampling illustration using a proposal distribution with heavier tails.
+1. `empirical_tail_analysis.py`
+2. `pot_gpd_workflow.py`
+3. `importance_sampling_demo.py`
+4. `conditional_mc_demo.py`
+5. `block_maxima_gev_workflow.py`
+6. `bootstrap_uncertainty_demo.py`
+7. `integration_helpers_demo.py`
+8. `diagnostic_plots.py`
 
-Shows:
-- normalized weights
-- effective sample size
-- weighted tail probability
-- weighted VaR and TVaR
-
-### `diagnostic_plots.py`
-Generates a few quick diagnostic plots and saves them to `examples/output/`.
-
-Shows:
-- exceedance curve
-- mean excess plot
-- Hill curve
-
-## Running the examples
+## Running scripts
 
 From the repository root:
 
@@ -47,5 +35,11 @@ From the repository root:
 python examples/empirical_tail_analysis.py
 python examples/pot_gpd_workflow.py
 python examples/importance_sampling_demo.py
+python examples/conditional_mc_demo.py
+python examples/block_maxima_gev_workflow.py
+python examples/bootstrap_uncertainty_demo.py
+python examples/integration_helpers_demo.py
 python examples/diagnostic_plots.py
 ```
+
+The plotting script writes PNG files into `examples/output/`.

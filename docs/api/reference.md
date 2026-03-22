@@ -2,158 +2,143 @@
 
 ## Top-level exports
 
-```python
-from extremeloss import (
-    GPDFit,
-    TailEstimateResult,
-    ThresholdScan,
-    effective_sample_size,
-    empirical_tvar,
-    empirical_var,
-    estimate_tail_probability,
-    estimate_tail_probability_is,
-    estimate_tvar,
-    estimate_tvar_is,
-    estimate_var,
-    estimate_var_is,
-    exceedance_probability,
-    extract_exceedances,
-    extreme_loss_summary,
-    fit_gpd,
-    fit_pot,
-    gpd_tail_probability,
-    gpd_tvar,
-    gpd_var,
-    hill_curve,
-    hill_estimator,
-    mean_excess,
-    pickands_estimator,
-    return_level,
-    return_period,
-    threshold_diagnostic_table,
-)
-```
+The root package currently exports the main estimation, EVT, analytics, integration, and bootstrap helpers.
 
-## Results module
+## Result containers
 
 ### `TailEstimateResult`
 
-Dataclass used for empirical and importance-sampling estimators.
+Fields commonly used:
 
-#### Fields
-
-- `estimate: float`
-- `method: str`
-- `stderr: float | None = None`
-- `ci: tuple[float, float] | None = None`
-- `n: int | None = None`
-- `effective_n: float | None = None`
-- `threshold: float | None = None`
-- `quantile: float | None = None`
-- `diagnostics: dict[str, Any] = {}`
-
-#### Methods
-
-- `.summary() -> dict[str, Any]`
+- `estimate`
+- `method`
+- `stderr`
+- `ci`
+- `n`
+- `effective_n`
+- `threshold`
+- `quantile`
+- `diagnostics`
 
 ### `GPDFit`
 
-Dataclass representing a fitted generalized Pareto model above a threshold.
+Methods:
 
-#### Methods
+- `summary()`
+- `tail_probability(x)`
+- `var(p)`
+- `tvar(p)`
+- `return_level(period)`
 
-- `.tail_probability(x: float) -> float`
-- `.var(p: float) -> float`
-- `.tvar(p: float) -> float`
-- `.return_level(period: float) -> float`
-- `.summary() -> dict[str, Any]`
+### `GEVFit`
+
+Methods:
+
+- `summary()`
+- `cdf(x)`
+- `return_level(period)`
+
+### `BootstrapResult`
+
+Fields:
+
+- `estimate`
+- `bootstrap_estimates`
+- `method`
+- `ci`
+- `stderr`
+- `alpha`
 
 ### `ThresholdScan`
 
-Container for threshold-diagnostic arrays.
+Methods:
 
-#### Methods
+- `to_dict()`
 
-- `.to_dict() -> dict[str, np.ndarray]`
+## Estimation
 
-## Estimation module
+### Empirical
 
-### Empirical estimators
+- `estimate_tail_probability(losses, threshold, size=None, alpha=0.05)`
+- `estimate_var(losses, q, size=None)`
+- `estimate_tvar(losses, q, size=None)`
+- `estimate_var_tvar(losses, q, size=None)`
+- `empirical_var(losses, q)`
+- `empirical_tvar(losses, q)`
+- `exceedance_probability(losses, threshold)`
+- `exceedance_curve(losses, thresholds)`
+- `survival_function(losses, grid)`
 
-#### `estimate_tail_probability(data, threshold, *, size=None, alpha=0.05)`
-Estimate `P(X > threshold)` from observed or simulated losses.
+### Importance sampling
 
-#### `estimate_var(data, q, *, size=None, alpha=0.05)`
-Estimate empirical VaR at quantile `q`.
+- `estimate_mean_is(values, weights, alpha=0.05)`
+- `estimate_tail_probability_is(losses, weights, threshold, alpha=0.05)`
+- `estimate_exceedance_curve_is(losses, weights, thresholds)`
+- `estimate_var_is(losses, weights, q)`
+- `estimate_tvar_is(losses, weights, q)`
+- `estimate_var_tvar_is(losses, weights, q)`
+- `effective_sample_size(weights)`
+- `importance_sampling_diagnostics(weights)`
+- `log_importance_weights(log_target_density, log_proposal_density, normalize=True)`
+- `stabilize_weights(weights, clip_quantile=None, renormalize=True)`
 
-#### `estimate_tvar(data, q, *, size=None, alpha=0.05)`
-Estimate empirical TVaR at quantile `q`.
+### Conditional Monte Carlo
 
-#### `estimate_var_tvar(data, q, *, size=None, alpha=0.05)`
-Return a dictionary containing VaR, TVaR, and tail-probability summaries.
+- `estimate_tail_probability_cmc(conditional_probabilities, threshold=None, alpha=0.05)`
+- `estimate_tvar_cmc(conditional_tail_expectations, q, threshold=None, alpha=0.05)`
 
-### Importance-sampling estimators
+## EVT
 
-#### `estimate_tail_probability_is(losses, weights, threshold, *, alpha=0.05)`
-Weighted estimator for exceedance probability.
+### POT / GPD
 
-#### `estimate_var_is(losses, weights, q)`
-Weighted quantile estimator.
+- `extract_exceedances(data, threshold)`
+- `fit_gpd(excesses, method="mle")`
+- `fit_pot(data, threshold, method="mle")`
+- `gpd_tail_probability(x, threshold, xi, beta, exceedance_fraction)`
+- `gpd_var(p, threshold, xi, beta, exceedance_fraction)`
+- `gpd_tvar(p, threshold, xi, beta, exceedance_fraction)`
 
-#### `estimate_tvar_is(losses, weights, q)`
-Weighted TVaR estimator.
+### Block maxima / GEV
 
-#### `effective_sample_size(weights)`
-Return the standard importance-sampling ESS based on normalized weights.
+- `make_blocks(data, block_size, drop_last=True)`
+- `fit_gev(block_maxima, method="mle", block_size=None)`
+- `fit_block_maxima(data, block_size, method="mle", drop_last=True)`
+- `block_return_level(period, fit)`
 
-## EVT module
+### Tail index and threshold diagnostics
 
-### Peaks over threshold
+- `hill_estimator(data, k)`
+- `pickands_estimator(data, k)`
+- `hill_curve(data, k_grid=None)`
+- `mean_excess(data, thresholds)`
+- `threshold_diagnostic_table(data, thresholds)`
 
-#### `extract_exceedances(data, threshold)`
-Return positive exceedances above the threshold.
+## Analytics
 
-#### `fit_pot(data, threshold, method="mle")`
-Fit a GPD to exceedances extracted from the data.
+- `extreme_loss_summary(losses, thresholds=None, quantiles=(0.95, 0.99, 0.995))`
+- `var_tvar_diagnostic_table(losses, quantiles=(0.95, 0.99, 0.995))`
+- `return_period(probability)`
+- `exceedance_frequency(losses, threshold)`
+- `return_level(period, fit)`
 
-#### `fit_gpd(excesses, threshold=0.0, method="mle")`
-Fit a GPD directly to excess values.
+## Bootstrap utilities
 
-### Tail function helpers
+- `bootstrap_statistic(data, statistic, n_resamples=1000, alpha=0.05, random_state=None)`
+- `bootstrap_tail_probability(losses, threshold, **kwargs)`
+- `bootstrap_var(losses, q, **kwargs)`
+- `bootstrap_tvar(losses, q, **kwargs)`
 
-#### `gpd_tail_probability(x, threshold, xi, beta, exceedance_fraction)`
-Evaluate the fitted GPD-based exceedance probability at `x`.
+## Integration helpers
 
-#### `gpd_var(p, threshold, xi, beta, exceedance_fraction)`
-Return the EVT extrapolated VaR at probability level `p`.
+- `sample_lossmodel(model, size)`
+- `fit_pot_from_lossmodel(model, size, threshold)`
+- `losses_from_risksim(result, view="losses")`
+- `tail_summary_from_risksim(result, view="losses", thresholds=None, quantiles=(0.95, 0.99, 0.995))`
+- `component_tail_metrics(result, q=0.99, threshold=None)`
+- `layer_tail_metrics(result, q=0.99, threshold=None)`
 
-#### `gpd_tvar(p, threshold, xi, beta, exceedance_fraction)`
-Return the EVT extrapolated TVaR at probability level `p`.
+## Plotting
 
-### Tail-index and threshold diagnostics
-
-#### `hill_estimator(data, k)`
-Classic Hill estimator for heavy-tail index.
-
-#### `pickands_estimator(data, k)`
-Pickands estimator based on upper-order statistics.
-
-#### `hill_curve(data, k_grid=None)`
-Return a grid of Hill estimates.
-
-#### `mean_excess(data, thresholds)`
-Return mean residual life values across a threshold grid.
-
-#### `threshold_diagnostic_table(data, thresholds)`
-Fit POT models across a threshold grid and summarize stability.
-
-## Analytics module
-
-### `return_period(probability)`
-Convert exceedance probability to expected return period.
-
-### `return_level(period, fit)`
-Return the fitted extreme level associated with a return period.
-
-### `extreme_loss_summary(losses, *, thresholds=None, quantiles=(...))`
-Return a lightweight dictionary of summary statistics and tail diagnostics.
+- `plot_exceedance_curve(losses, thresholds, ax=None)`
+- `plot_mean_excess(losses, thresholds, ax=None)`
+- `plot_hill_curve(losses, k_grid=None, ax=None)`

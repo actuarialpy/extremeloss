@@ -1,84 +1,117 @@
 # Package overview
 
-## `extremeloss.estimation`
+`extremeloss` follows a hybrid structure:
 
-Core empirical and weighted estimators.
+- domain subpackages similar to `lossmodels`
+- shared protocol and result modules similar to `risksim`
 
-### Main functions
+## estimation/
 
-- `estimate_tail_probability(data, threshold, size=None, alpha=0.05)`
-- `estimate_var(data, q, size=None, alpha=0.05)`
-- `estimate_tvar(data, q, size=None, alpha=0.05)`
-- `estimate_var_tvar(data, q, size=None, alpha=0.05)`
-- `estimate_tail_probability_is(losses, weights, threshold, alpha=0.05)`
-- `estimate_var_is(losses, weights, q)`
-- `estimate_tvar_is(losses, weights, q)`
-- `exceedance_probability(losses, threshold)`
-- `exceedance_curve(losses, thresholds)`
+This subpackage contains empirical and simulation-based tail estimators.
 
-### Result object
+### Empirical estimators
 
-Most estimation functions return `TailEstimateResult` with fields such as:
+- `estimate_tail_probability`
+- `estimate_var`
+- `estimate_tvar`
+- `estimate_var_tvar`
+- `exceedance_probability`
+- `exceedance_curve`
+- `survival_function`
 
-- `estimate`
-- `method`
-- `stderr`
-- `ci`
-- `n`
-- `effective_n`
-- `threshold`
-- `quantile`
-- `diagnostics`
+### Importance sampling
 
-## `extremeloss.evt`
+- `estimate_mean_is`
+- `estimate_tail_probability_is`
+- `estimate_exceedance_curve_is`
+- `estimate_var_is`
+- `estimate_tvar_is`
+- `estimate_var_tvar_is`
+- `effective_sample_size`
+- `importance_sampling_diagnostics`
+- `log_importance_weights`
+- `stabilize_weights`
 
-Extreme value theory utilities focused on peaks over threshold.
+### Conditional Monte Carlo
 
-### Main functions
+- `estimate_tail_probability_cmc`
+- `estimate_tvar_cmc`
 
-- `extract_exceedances(data, threshold)`
-- `fit_gpd(excesses, threshold=0.0, method="mle")`
-- `fit_pot(data, threshold, method="mle")`
-- `gpd_tail_probability(x, threshold, xi, beta, exceedance_fraction)`
-- `gpd_var(p, threshold, xi, beta, exceedance_fraction)`
-- `gpd_tvar(p, threshold, xi, beta, exceedance_fraction)`
-- `hill_estimator(data, k)`
-- `pickands_estimator(data, k)`
-- `hill_curve(data, k_grid=None)`
-- `mean_excess(data, thresholds)`
-- `threshold_diagnostic_table(data, thresholds)`
+These functions operate on precomputed conditional probabilities or conditional tail expectations. They are generic building blocks rather than contract-specific CMC implementations.
 
-### EVT result objects
+## evt/
 
+This subpackage contains extreme value modeling workflows.
+
+### Peaks over threshold
+
+- `extract_exceedances`
+- `fit_gpd`
+- `fit_pot`
+- `gpd_tail_probability`
+- `gpd_var`
+- `gpd_tvar`
+
+### Block maxima / GEV
+
+- `make_blocks`
+- `fit_gev`
+- `fit_block_maxima`
+- `block_return_level`
+
+### Tail-index and threshold diagnostics
+
+- `hill_estimator`
+- `pickands_estimator`
+- `hill_curve`
+- `mean_excess`
+- `threshold_diagnostic_table`
+
+## analytics/
+
+This subpackage contains light reporting and practical tail summaries.
+
+- `extreme_loss_summary`
+- `var_tvar_diagnostic_table`
+- `return_period`
+- `return_level`
+- `exceedance_frequency`
+
+## utils/
+
+This subpackage currently contains:
+
+- validation helpers
+- bootstrap wrappers for tail statistics
+
+Bootstrap entry points:
+
+- `bootstrap_statistic`
+- `bootstrap_tail_probability`
+- `bootstrap_var`
+- `bootstrap_tvar`
+
+## integration.py
+
+The integration layer is intentionally duck-typed, not hard-coupled to installed `lossmodels` or `risksim` classes.
+
+Main helpers:
+
+- `sample_lossmodel`
+- `fit_pot_from_lossmodel`
+- `losses_from_risksim`
+- `tail_summary_from_risksim`
+- `component_tail_metrics`
+- `layer_tail_metrics`
+
+## results.py
+
+Main result containers:
+
+- `TailEstimateResult`
 - `GPDFit`
+- `GEVFit`
+- `BootstrapResult`
 - `ThresholdScan`
 
-`GPDFit` supports:
-
-- `.summary()`
-- `.tail_probability(x)`
-- `.var(p)`
-- `.tvar(p)`
-- `.return_level(period)`
-
-## `extremeloss.analytics`
-
-Applied summaries and diagnostics.
-
-### Main functions
-
-- `return_period(probability)`
-- `return_level(period, fit)`
-- `exceedance_frequency(losses, threshold)`
-- `var_tvar_diagnostic_table(losses, quantiles=(...))`
-- `extreme_loss_summary(losses, thresholds=None, quantiles=(...))`
-
-## `extremeloss.plotting`
-
-Lightweight plotting wrappers:
-
-- `plot_exceedance_curve`
-- `plot_mean_excess`
-- `plot_hill_curve`
-
-These return a Matplotlib axis and are meant to be simple helpers, not a full charting framework.
+These result objects make the API easier to inspect and test than returning bare tuples or scalars everywhere.
