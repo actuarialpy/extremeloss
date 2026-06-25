@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import matplotlib.pyplot as plt
-import numpy as np
 
 from .estimation.metrics import exceedance_curve
 from .evt.tail_index import hill_curve

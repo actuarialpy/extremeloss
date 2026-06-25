@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.2.2
+
+### Fixed
+- Removed an unused `numpy` import in `plotting.py` (lint hygiene; no behaviour change).
+
+### Tests
+- Added `test_risksim_integration.py`, exercising the duck-typed risksim bridge
+  (`losses_from_risksim`, `tail_summary_from_risksim`, `component_tail_metrics`,
+  `layer_tail_metrics`) against a real `risksim` `SimulationResult` rather than only a
+  stand-in object. Skips cleanly when `risksim`/`lossmodels` are not installed, matching
+  the existing spliced-severity integration test. Guards against a future rename of a
+  risksim loss view silently breaking the integration.
+
 ## 0.2.1
 
 ### Added (packaging)
