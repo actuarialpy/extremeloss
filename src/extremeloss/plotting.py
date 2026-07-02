@@ -1,6 +1,12 @@
 from __future__ import annotations
 
-import matplotlib.pyplot as plt
+try:
+    import matplotlib.pyplot as plt
+except ModuleNotFoundError as _exc:  # pragma: no cover - exercised only without matplotlib
+    raise ModuleNotFoundError(
+        "extremeloss plotting requires matplotlib, which is an optional dependency. "
+        "Install it with:  pip install \"extremeloss[plot]\""
+    ) from _exc
 
 from .estimation.metrics import exceedance_curve
 from .evt.tail_index import hill_curve

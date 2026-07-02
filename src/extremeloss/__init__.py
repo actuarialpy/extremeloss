@@ -106,4 +106,11 @@ __all__ = [
     "threshold_diagnostic_table",
 ]
 
-__version__ = "0.2.2"
+from importlib.metadata import PackageNotFoundError as _PackageNotFoundError, version as _version
+
+try:
+    __version__ = _version("extremeloss")
+except _PackageNotFoundError:  # running from a source tree without an installed distribution
+    __version__ = "0.0.0"
+
+del _PackageNotFoundError, _version

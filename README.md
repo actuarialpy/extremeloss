@@ -1,8 +1,5 @@
 # extremeloss
 
-[![Python](https://img.shields.io/badge/python-3.10%2B-blue)]()
-[![License](https://img.shields.io/badge/license-MIT-green)]()
-
 Extreme value theory, tail-risk estimation, and rare-event diagnostics.
 
 ---
@@ -36,7 +33,7 @@ a **`lossmodels`** object, splice a fitted tail onto a body distribution, or ana
   and effective sample size.
 - **Bootstrap** — resampling uncertainty for tail probabilities, VaR, TVaR, and
   arbitrary scalar statistics.
-- **Ecosystem integration** — fit tails from **`lossmodels`** objects, splice GPD tails
+- **Integration** — fit tails from **`lossmodels`** objects, splice GPD tails
   onto bodies, and summarize **`risksim`** simulations.
 
 ## Installation
@@ -257,7 +254,7 @@ spliced = SplicedSeverity(body=body, tail=tail, threshold=u, weight=body.cdf(u))
 The spliced object is a full **`lossmodels`** severity, so it drops straight back into a
 collective-risk model or a **`risksim`** portfolio.
 
-## Ecosystem integration
+## Integrating with loss models and simulations
 
 **`extremeloss`** reads directly from **`lossmodels`** and **`risksim`** objects:
 
@@ -286,19 +283,6 @@ fit = fit_pot_from_lossmodel(ParetoII(2.5, 1000), size=40_000, threshold=1_500)
 With `matplotlib` installed, the `extremeloss.plotting` module offers diagnostic
 plots — `plot_mean_excess(losses, thresholds)`, `plot_hill_curve(losses)`, and
 `plot_exceedance_curve(losses, thresholds)` (each accepts an optional `ax`).
-
-## The OpenActuarial ecosystem
-
-**`extremeloss`** is the tail-modeling layer of a small family of actuarial packages
-that interoperate through the `.sample()` / `.mean()` interface:
-
-- **`lossmodels`** — frequency / severity distributions, aggregate (collective-risk)
-  loss models, coverage modifications, and model fitting; the source of body
-  distributions for splicing and of models to fit tails from.
-- **`risksim`** — portfolio loss simulation and aggregate reinsurance; its
-  simulation results feed the integration helpers above.
-- **`actuarialpy`** — deterministic, experience-and-data analysis (summaries,
-  triangles, trend, credibility) on tabular data.
 
 ## Testing
 

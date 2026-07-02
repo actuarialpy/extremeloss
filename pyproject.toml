@@ -1,58 +1,56 @@
 [build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
 name = "extremeloss"
-version = "0.2.3"
+version = "0.3.0"
 description = "Extreme-loss estimation and tail risk analytics in Python"
 readme = "README.md"
 requires-python = ">=3.10"
-license = { text = "MIT" }
+license = "MIT"
 authors = [{ name = "Michael Bryant" }]
 keywords = [
-  "actuarial",
-  "risk",
-  "extreme value theory",
-  "tail risk",
-  "rare events",
-  "simulation",
-]
-dependencies = [
-  "numpy>=1.22",
-  "scipy>=1.8",
-  "matplotlib>=3.6",
+    "actuarial",
+    "risk",
+    "extreme value theory",
+    "tail risk",
+    "rare events",
+    "simulation",
 ]
 classifiers = [
-  "Development Status :: 3 - Alpha",
-  "Intended Audience :: Science/Research",
-  "Intended Audience :: Financial and Insurance Industry",
-  "License :: OSI Approved :: MIT License",
-  "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.10",
-  "Topic :: Scientific/Engineering :: Mathematics",
-  "Topic :: Scientific/Engineering :: Information Analysis",
-  "Topic :: Software Development :: Libraries :: Python Modules",
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Financial and Insurance Industry",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Scientific/Engineering :: Information Analysis",
 ]
-
+dependencies = [
+    "numpy>=1.22",
+    "scipy>=1.8",
+]
 
 [project.optional-dependencies]
-dev = [
-  "pytest>=8.0",
-]
-splice = [
-  "lossmodels>=0.4.0",
-]
+dev = ["pytest>=8.0"]
+plot = ["matplotlib>=3.6"]
+splice = ["lossmodels>=0.4.0"]
 
 [project.urls]
-Homepage = "https://github.com/OpenActuarial/extremeloss/"
-Repository = "https://github.com/OpenActuarial/extremeloss/"
-Documentation = "https://openactuarial.github.io/docs/extremeloss/"
-Issues = "https://github.com/OpenActuarial/extremeloss/issues/"
+Homepage = "https://github.com/OpenActuarial/extremeloss"
+Documentation = "https://openactuarial.org/extremeloss.html"
+Repository = "https://github.com/OpenActuarial/extremeloss"
+Issues = "https://github.com/OpenActuarial/extremeloss/issues"
 
-[tool.setuptools]
-package-dir = {"" = "src"}
-license-files = []
+[tool.hatch.build.targets.wheel]
+packages = ["src/extremeloss"]
 
-[tool.setuptools.packages.find]
-where = ["src"]
+[tool.pytest.ini_options]
+testpaths = ["tests"]
