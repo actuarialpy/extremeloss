@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
+import pytest
 
 from extremeloss.estimation.metrics import (
     empirical_tvar,
@@ -17,8 +18,8 @@ def test_empirical_var_and_tvar_match_known_values():
     var_80 = empirical_var(losses, 0.8)
     tvar_80 = empirical_tvar(losses, 0.8)
 
-    assert var_80 == np.quantile(losses, 0.8)
-    assert tvar_80 == 100.0
+    assert var_80 == np.quantile(losses, 0.8, method="inverted_cdf")
+    assert tvar_80 == pytest.approx(100.0)
 
 
 def test_exceedance_probability_and_curve_are_consistent():

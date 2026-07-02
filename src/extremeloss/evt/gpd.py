@@ -64,8 +64,8 @@ def gpd_var(
     validate_threshold(threshold)
     if beta <= 0.0:
         raise ValueError("beta must be positive")
-    if exceedance_fraction <= 0.0 or exceedance_fraction >= 1.0:
-        raise ValueError("exceedance_fraction must lie strictly between 0 and 1")
+    if exceedance_fraction <= 0.0 or exceedance_fraction > 1.0:
+        raise ValueError("exceedance_fraction must lie in (0, 1]")
     tail_prob = 1.0 - p
     if tail_prob >= exceedance_fraction:
         raise ValueError(

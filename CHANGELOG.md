@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.4.0
+
+### Changed
+- **Breaking (numeric):** `empirical_var` and `empirical_tvar` follow the
+  ecosystem-wide convention: VaR is the inverted-CDF order statistic and TVaR
+  the Acerbi-Tasche average-quantile estimator, so TVaR(q) >= VaR(q) always.
+  Conformance is pinned by a test shared byte-for-byte with risksim and
+  lossmodels.
+
+### Fixed
+- `coerce_losses` now accepts `pandas.Series` and other array-likes that also
+  expose a `sample` attribute; array conversion is attempted before the
+  model-sampling branch.
+- Component/layer summaries in the integration module zip names strictly
+  against value columns.
+
 ## 0.2.2
 
 ### Fixed

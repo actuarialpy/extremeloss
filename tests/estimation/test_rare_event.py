@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
+import pytest
 
 from extremeloss.estimation.rare_event import (
     estimate_tail_probability,
@@ -39,9 +40,11 @@ def test_estimate_var_and_tvar_on_simple_tail():
     var_result = estimate_var(losses, 0.8)
     tvar_result = estimate_tvar(losses, 0.8)
 
-    assert var_result.estimate == np.quantile(losses, 0.8)
-    assert tvar_result.estimate == 100.0
-    assert tvar_result.diagnostics['tail_sample_size'] == 1
+    # VaR_0.8 = x_(ceil(5*0.8)) = x_(4) = 4.0 (inverted-CDF convention);
+    # TVaR_0.8 = mean of the top 5*(1-0.8) = 1 observation = 100.0.
+    assert var_result.estimate == np.quantile(losses, 0.8, method="inverted_cdf")
+    assert tvar_result.estimate == pytest.approx(100.0)
+    assert tvar_result.diagnostics['tail_sample_size'] == 2
 
 
 def test_estimate_var_tvar_returns_expected_keys():

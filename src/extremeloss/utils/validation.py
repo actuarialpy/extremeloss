@@ -18,8 +18,10 @@ def as_1d_float_array(values, name: str = "values") -> np.ndarray:
     return arr
 
 
-def validate_q(q: float) -> None:
-    if not (0.0 < q < 1.0):
+def validate_q(q) -> None:
+    """Validate scalar or array-like quantile level(s) in ``(0, 1)``."""
+    q_arr = np.asarray(q, dtype=float)
+    if q_arr.size == 0 or not np.all((q_arr > 0.0) & (q_arr < 1.0)):
         raise ValueError("q must be strictly between 0 and 1")
 
 
@@ -61,11 +63,13 @@ def validate_probabilities(probabilities, name: str = "probabilities") -> np.nda
 
 
 def coerce_losses(data, size: int | None = None) -> np.ndarray:
-    if isinstance(data, np.ndarray) or isinstance(data, (list, tuple)):
+    # Concrete array-like data first. ``__array__`` covers pandas Series /
+    # Index and any other numpy-convertible container; checking it before the
+    # protocol branches matters because e.g. ``pandas.Series`` also exposes a
+    # ``.sample`` method and would otherwise be misrouted to the model branch.
+    if isinstance(data, (np.ndarray, list, tuple)) or hasattr(data, "__array__"):
         return as_1d_float_array(data, name="losses")
-    if isinstance(data, SupportsSimulationResult) or hasattr(data, "losses"):
-        return as_1d_float_array(getattr(data, "losses"), name="losses")
-    if isinstance(data, SupportsLosses) and hasattr(data, "losses"):
+    if isinstance(data, SupportsSimulationResult) or isinstance(data, SupportsLosses) or hasattr(data, "losses"):
         return as_1d_float_array(data.losses, name="losses")
     if isinstance(data, SupportsSample) or hasattr(data, "sample"):
         if size is None:

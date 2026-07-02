@@ -58,7 +58,7 @@ def component_tail_metrics(result, *, q: float = 0.99, threshold: float | None =
     if names is None:
         names = [f"component_{i}" for i in range(values.shape[1])]
     out: dict[str, dict[str, float]] = {}
-    for name, col in zip(names, values.T):
+    for name, col in zip(names, values.T, strict=True):
         metrics = {
             "var": float(empirical_var(col, q)),
             "tvar": float(empirical_tvar(col, q)),
@@ -80,7 +80,7 @@ def layer_tail_metrics(result, *, q: float = 0.99, threshold: float | None = Non
     if names is None:
         names = [f"layer_{i}" for i in range(values.shape[1])]
     out: dict[str, dict[str, float]] = {}
-    for name, col in zip(names, values.T):
+    for name, col in zip(names, values.T, strict=True):
         metrics = {
             "var": float(empirical_var(col, q)),
             "tvar": float(empirical_tvar(col, q)),

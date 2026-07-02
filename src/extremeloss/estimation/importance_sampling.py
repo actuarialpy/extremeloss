@@ -64,13 +64,24 @@ def importance_sampling_diagnostics(weights) -> dict[str, float]:
     }
 
 
-def _weighted_quantile(values: np.ndarray, weights: np.ndarray, q: float) -> float:
+def _weighted_var_index(values: np.ndarray, weights: np.ndarray, q: float):
+    """Sorted values/weights and the index of the weighted lower quantile.
+
+    The index is the first ``k`` with cumulative weight ``W_k >= q`` -- the
+    weighted analogue of the ecosystem VaR convention ``inf{x : F(x) >= q}``.
+    """
     order = np.argsort(values)
     x = values[order]
     w = weights[order]
     cdf = np.cumsum(w)
+    cdf[-1] = 1.0  # guard cumulative rounding of normalized weights
     idx = int(np.searchsorted(cdf, q, side="left"))
     idx = min(idx, x.size - 1)
+    return x, w, cdf, idx
+
+
+def _weighted_quantile(values: np.ndarray, weights: np.ndarray, q: float) -> float:
+    x, _, _, idx = _weighted_var_index(values, weights, q)
     return float(x[idx])
 
 
@@ -156,18 +167,30 @@ def estimate_var_is(losses, weights, q: float) -> TailEstimateResult:
 
 
 def estimate_tvar_is(losses, weights, q: float) -> TailEstimateResult:
+    """Weighted TVaR under the ecosystem average-quantile convention.
+
+    Implements the weighted Acerbi-Tasche plug-in for
+    ``TVaR_q = (1/(1-q)) * integral_q^1 VaR_u du``: with values sorted, weights
+    normalized, cumulative weights ``W_i`` and ``k`` the weighted-VaR index,
+
+        TVaR_q = [ sum_{i>k} w_i x_i + x_k (W_k - q) ] / (1 - q).
+
+    The atom at VaR contributes only the weight mass above level ``q``, which
+    keeps the estimator coherent with ties and makes it reduce *exactly* to
+    ``empirical_tvar`` when all weights are equal.
+    """
     validate_q(q)
     x, w = _validate_losses_weights(losses, weights)
-    threshold = _weighted_quantile(x, w, q)
-    mask = x >= threshold
-    tail_weights = w[mask]
-    tail_losses = x[mask]
-    if tail_losses.size == 0:
-        estimate = threshold
-    else:
-        estimate = float(np.sum(tail_weights * tail_losses) / np.sum(tail_weights))
+    xs, ws, cdf, k = _weighted_var_index(x, w, q)
+    threshold = float(xs[k])
+    tail = float(np.sum(ws[k + 1 :] * xs[k + 1 :]))
+    atom = threshold * max(float(cdf[k]) - q, 0.0)
+    estimate = (tail + atom) / (1.0 - q)
+    # TVaR >= VaR holds as a theorem; enforce it against floating-point noise,
+    # matching the empirical estimators across the ecosystem.
+    estimate = max(estimate, threshold)
     diagnostics = importance_sampling_diagnostics(w)
-    diagnostics["tail_weight"] = float(np.sum(tail_weights))
+    diagnostics["tail_weight"] = float(np.sum(ws[k:]))
     return TailEstimateResult(
         estimate=estimate,
         method="importance_sampling",
